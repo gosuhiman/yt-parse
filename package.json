@@ -2,9 +2,10 @@
   "name": "yt-parse",
   "version": "1.0.0",
   "description": "youtube parser utility",
-  "main": "index.js",
+  "main": "yt-parser.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node index.ts"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,14 @@
   "bugs": {
     "url": "https://github.com/gosuhiman/yt-parse/issues"
   },
-  "homepage": "https://github.com/gosuhiman/yt-parse#readme"
+  "homepage": "https://github.com/gosuhiman/yt-parse#readme",
+  "dependencies": {
+    "lodash": "^4.17.5",
+    "request": "^2.83.0",
+    "rxjs": "^5.5.6"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.104",
+    "@types/request": "^2.47.0"
+  }
 }
