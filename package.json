@@ -1,0 +1,19 @@
+{
+  "name": "yt-parse",
+  "version": "1.0.0",
+  "description": "youtube parser utility",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gosuhiman/yt-parse.git"
+  },
+  "author": "gosuhiman@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gosuhiman/yt-parse/issues"
+  },
+  "homepage": "https://github.com/gosuhiman/yt-parse#readme"
+}
