@@ -3,23 +3,29 @@ import * as _ from "lodash";
 import * as request from "request";
 import {Observable} from "rxjs/Observable";
 import 'rxjs/add/observable/bindNodeCallback';
+import 'rxjs/add/observable/throw';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/map';
 import {URLSearchParams} from "url";
 import {YtVideoFileData} from "./yt-video-file-data";
 
+const YOUTUBE_ID_CHARS: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
+const YOUTUBE_ID_LENGTH: number = 11;
+
 export class YtParser {
 
   private _config: YtParserConfig = {};
-
+  private _youtubeIdRegexp: RegExp;
   private _requestAsObservable: any;
 
   constructor(config: YtParserConfig) {
     _.merge(this._config, config);
+    this._youtubeIdRegexp = new RegExp('^[' + YOUTUBE_ID_CHARS + ']{' + YOUTUBE_ID_LENGTH + '}$');
     this._requestAsObservable = Observable.bindNodeCallback(request, (response, body) => body);
   }
 
   getMp4Url(videoId: string): Observable<string> {
+    if (!this.isYoutubeVideoId(videoId)) return Observable.throw(new Error('Invalid youtubeId'));
     return this.getVideoInfo(videoId)
       .map((videoInfo: URLSearchParams) => {
         const videoFileDatas: YtVideoFileData[] = this._mapAdaptiveFormatsToVideoFileData(videoInfo.get('url_encoded_fmt_stream_map'));
@@ -30,11 +36,17 @@ export class YtParser {
   }
 
   getVideoInfo(videoId: string) {
+    if (!this.isYoutubeVideoId(videoId)) return Observable.throw(new Error('Invalid youtubeId'));
     const url: string = `http://www.youtube.com/get_video_info?&video_id=${videoId}&asv=3&el=detailpage&hl=en_US`;
     return this._requestAsObservable(url)
       .map((body: string) => {
         return new URLSearchParams(body);
       });
+  }
+
+  isYoutubeVideoId(videoId: string): boolean {
+    if (!videoId) return false;
+    return this._youtubeIdRegexp.test(videoId);
   }
 
   private _mapAdaptiveFormatsToVideoFileData(adaptiveFormats: string): YtVideoFileData[] {
