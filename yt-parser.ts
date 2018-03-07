@@ -9,7 +9,6 @@ import 'rxjs/add/operator/map';
 import {URLSearchParams} from "url";
 import {YtVideoFileData} from "./yt-video-file-data";
 
-const YOUTUBE_ID_CHARS: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
 const YOUTUBE_ID_LENGTH: number = 11;
 
 export class YtParser {
@@ -20,7 +19,7 @@ export class YtParser {
 
   constructor(config: YtParserConfig) {
     _.merge(this._config, config);
-    this._youtubeIdRegexp = new RegExp('^[' + YOUTUBE_ID_CHARS + ']{' + YOUTUBE_ID_LENGTH + '}$');
+    this._youtubeIdRegexp = new RegExp('^[A-Za-z0-9_-]{' + YOUTUBE_ID_LENGTH + '}$');
     this._requestAsObservable = Observable.bindNodeCallback(request, (response, body) => body);
   }
 
