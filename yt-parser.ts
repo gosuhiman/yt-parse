@@ -6,6 +6,7 @@ import 'rxjs/add/observable/bindNodeCallback';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/map';
 import {URLSearchParams} from "url";
+import {YtVideoFileData} from "./yt-video-file-data";
 
 export class YtParser {
 
@@ -21,8 +22,10 @@ export class YtParser {
   getMp4Url(videoId: string): Observable<string> {
     return this.getVideoInfo(videoId)
       .map((videoInfo: URLSearchParams) => {
-        const adaptiveFormats: URLSearchParams = new URLSearchParams(videoInfo.get('url_encoded_fmt_stream_map'));
-        return adaptiveFormats.get('url');
+        const videoFileDatas: YtVideoFileData[] = this._mapAdaptiveFormatsToVideoFileData(videoInfo.get('url_encoded_fmt_stream_map'));
+        const videoFileDatasMp4Only: YtVideoFileData[] = _.filter(videoFileDatas, {'mimeType': 'video/mp4'});
+        if (videoFileDatasMp4Only.length == 0) throw new Error('There is no mp4 stream for this video');
+        return videoFileDatas[0].url;
       });
   }
 
@@ -32,6 +35,25 @@ export class YtParser {
       .map((body: string) => {
         return new URLSearchParams(body);
       });
+  }
+
+  private _mapAdaptiveFormatsToVideoFileData(adaptiveFormats: string): YtVideoFileData[] {
+    const data: YtVideoFileData[] = [];
+    const formats: string[] = adaptiveFormats.split(',');
+    formats.forEach((formatString: string) => {
+      const formatData: URLSearchParams = new URLSearchParams(formatString);
+      const videoFileData: YtVideoFileData = new YtVideoFileData();
+      videoFileData.type = formatData.get('type');
+      videoFileData.itag = +formatData.get('itag');
+      videoFileData.quality = formatData.get('quality');
+      videoFileData.url = formatData.get('url');
+      const parsedType: string[] = videoFileData.type.split('; ');
+      if (parsedType.length > 0) {
+        videoFileData.mimeType = parsedType[0];
+      }
+      data.push(videoFileData);
+    });
+    return data;
   }
 
 }
